@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <title>Findings — IronJava</title>
+  <link rel="stylesheet" href="/css/app.css"/>
+</head>
+<body>
+<header>
+  <h1>IronJava</h1>
+  <nav>
+    <a href="/dashboard">Repositories</a>
+    <a href="/findings">Findings</a>
+    <a href="/runs">Remediations</a>
+    <form class="inline" method="post" th:action="@{/logout}"><button type="submit">Sign out</button></form>
+  </nav>
+</header>
+<main>
+  <p th:if="${notice}" class="notice" th:text="${notice}"></p>
+  <section class="card">
+    <h2>Findings</h2>
+    <p class="muted">Only ELIGIBLE findings can be prepared. Manual review stays on this page.</p>
+    <form method="get" action="/findings">
+      <label>Scan
+        <select name="scan" onchange="this.form.submit()">
+          <option value="">Select a scan</option>
+          <option th:each="scan : ${scans}" th:value="${scan.id}" th:text="${scan.repositoryId + ' ' + scan.state + ' ' + scan.id}"
+                  th:selected="${selectedScan != null && selectedScan.equals(scan.id.toString())}"></option>
+        </select>
+      </label>
+    </form>
+    <table>
+      <thead><tr><th>Coordinate</th><th>Version</th><th>Scope</th><th>Advisory</th><th>Severity</th><th>Eligibility</th><th>Candidates</th><th></th></tr></thead>
+      <tbody>
+      <tr th:each="finding : ${findings}">
+        <td th:text="${finding.coordinate}"></td>
+        <td th:text="${finding.version}"></td>
+        <td th:text="${finding.scope + ' / ' + finding.versionSource}"></td>
+        <td th:text="${finding.primaryAdvisoryId}"></td>
+        <td th:text="${finding.severity}"></td>
+        <td th:class="${finding.eligibility}" th:text="${finding.eligibility + ' ' + finding.eligibilityReasons}"></td>
+        <td th:text="${finding.candidates}"></td>
+        <td>
+          <form th:if="${finding.eligibility == 'ELIGIBLE'}" method="post" th:action="@{/findings/remediate}">
+            <input type="hidden" name="findingId" th:value="${finding.id}"/>
+            <input type="hidden" name="idempotencyKey" th:value="${idempotencyKey}"/>
+            <button type="submit">Prepare fix</button>
+          </form>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+</body>
+</html>

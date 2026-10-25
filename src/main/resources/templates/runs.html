@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <title>Remediations — IronJava</title>
+  <link rel="stylesheet" href="/css/app.css"/>
+</head>
+<body>
+<header>
+  <h1>IronJava</h1>
+  <nav>
+    <a href="/dashboard">Repositories</a>
+    <a href="/findings">Findings</a>
+    <a href="/runs">Remediations</a>
+    <form class="inline" method="post" th:action="@{/logout}"><button type="submit">Sign out</button></form>
+  </nav>
+</header>
+<main>
+  <p th:if="${notice}" class="notice" th:text="${notice}"></p>
+  <section class="card">
+    <h2>Remediation runs</h2>
+    <table>
+      <thead><tr><th>State</th><th>Coordinate</th><th>Candidate</th><th>Reason</th><th>Pull request</th></tr></thead>
+      <tbody>
+      <tr th:each="run : ${runs}">
+        <td><a th:href="@{/runs/{id}(id=${run.id})}" th:text="${run.state}"></a></td>
+        <td th:text="${run.coordinate}"></td>
+        <td th:text="${run.previousVersion + ' → ' + run.candidateVersion}"></td>
+        <td th:text="${run.reasonMessage}"></td>
+        <td>
+          <a th:if="${run.prUrl != null}" th:href="${run.prUrl}" th:text="${run.prUrl}"></a>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+</body>
+</html>

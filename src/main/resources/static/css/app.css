@@ -1,0 +1,44 @@
+:root {
+  color-scheme: light;
+  --ink: #1c1915;
+  --muted: #5c564c;
+  --line: #d9d1c4;
+  --paper: #f7f3ec;
+  --card: #fffdf8;
+  --accent: #8c3a1e;
+  --ok: #1f6b45;
+  --warn: #8a5a00;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font: 16px/1.45 "Segoe UI", sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+}
+header, main { max-width: 1100px; margin: 0 auto; padding: 1rem 1.25rem; }
+header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid var(--line); }
+nav a { margin-right: 1rem; color: var(--accent); }
+h1 { font-size: 1.4rem; margin: 0; }
+h2 { font-size: 1.1rem; }
+table { width: 100%; border-collapse: collapse; background: var(--card); }
+th, td { text-align: left; padding: 0.45rem 0.55rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+form.inline { display: inline; }
+button, .button {
+  background: var(--accent);
+  color: white;
+  border: 0;
+  border-radius: 4px;
+  padding: 0.35rem 0.7rem;
+  cursor: pointer;
+}
+.notice { background: #fff4d6; border: 1px solid #e2c98a; padding: 0.6rem 0.8rem; }
+.card { background: var(--card); border: 1px solid var(--line); padding: 0.8rem 1rem; margin: 0.8rem 0; }
+label { display: block; margin: 0.4rem 0; }
+input, select { padding: 0.3rem; }
+pre { white-space: pre-wrap; background: #211e1a; color: #f4efe6; padding: 0.8rem; overflow: auto; }
+.muted { color: var(--muted); }
+.ELIGIBLE { color: var(--ok); font-weight: 600; }
+.MANUAL_REVIEW, .BLOCKED { color: var(--warn); font-weight: 600; }
+.FAILED, .INELIGIBLE { color: var(--accent); font-weight: 600; }
+.login { max-width: 28rem; margin: 4rem auto; }

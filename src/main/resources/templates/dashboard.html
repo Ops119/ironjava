@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <title>Repositories — IronJava</title>
+  <link rel="stylesheet" href="/css/app.css"/>
+</head>
+<body>
+<header>
+  <h1>IronJava</h1>
+  <nav>
+    <a href="/dashboard">Repositories</a>
+    <a href="/findings">Findings</a>
+    <a href="/runs">Remediations</a>
+    <form class="inline" method="post" th:action="@{/logout}"><button type="submit">Sign out</button></form>
+  </nav>
+</header>
+<main>
+  <p th:if="${notice}" class="notice" th:text="${notice}"></p>
+  <section class="card">
+    <h2>Allowlisted repositories</h2>
+    <p class="muted">Clients cannot supply clone URLs, commands, or model instructions. The server allowlist is the only source of repositories.</p>
+    <table>
+      <thead><tr><th>Id</th><th>Branch</th><th>Source</th><th></th></tr></thead>
+      <tbody>
+      <tr th:each="repo : ${repositories}">
+        <td th:text="${repo.id()}"></td>
+        <td th:text="${repo.allowedBranch()}"></td>
+        <td th:text="${repo.source()}"></td>
+        <td>
+          <form method="post" th:action="@{/dashboard/scans}">
+            <input type="hidden" name="repositoryId" th:value="${repo.id()}"/>
+            <input type="hidden" name="idempotencyKey" th:value="${idempotencyKey}"/>
+            <button type="submit">Queue scan</button>
+          </form>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </section>
+  <section class="card">
+    <h2>Queue</h2>
+    <p th:text="${paused} ? 'Paused. New claims wait. In-flight work continues.' : 'Accepting new claims.'"></p>
+    <form method="post" th:action="@{/dashboard/queue}">
+      <input type="hidden" name="paused" th:value="${!paused}"/>
+      <input type="hidden" name="idempotencyKey" th:value="${idempotencyKey}"/>
+      <button type="submit" th:text="${paused} ? 'Resume queue' : 'Pause queue'"></button>
+    </form>
+  </section>
+  <section class="card">
+    <h2>Scans</h2>
+    <table>
+      <thead><tr><th>State</th><th>Repository</th><th>Base</th><th>Reason</th><th></th></tr></thead>
+      <tbody>
+      <tr th:each="scan : ${scans}">
+        <td th:text="${scan.state}"></td>
+        <td><a th:href="@{/findings(scan=${scan.id})}" th:text="${scan.repositoryId}"></a></td>
+        <td th:text="${scan.baseSha}"></td>
+        <td th:text="${scan.reasonMessage}"></td>
+        <td>
+          <form th:if="${!scan.state.equals('COMPLETED') && !scan.state.equals('FAILED') && !scan.state.equals('BLOCKED') && !scan.state.equals('CANCELLED') && !scan.state.equals('INTERRUPTED') && !scan.state.equals('PR_OPENED')}"
+                method="post" th:action="@{/dashboard/scans/{id}/cancel(id=${scan.id})}">
+            <input type="hidden" name="idempotencyKey" th:value="${idempotencyKey}"/>
+            <button type="submit">Cancel</button>
+          </form>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <title>Remediation — IronJava</title>
+  <link rel="stylesheet" href="/css/app.css"/>
+</head>
+<body>
+<header>
+  <h1>IronJava</h1>
+  <nav>
+    <a href="/dashboard">Repositories</a>
+    <a href="/findings">Findings</a>
+    <a href="/runs">Remediations</a>
+    <form class="inline" method="post" th:action="@{/logout}"><button type="submit">Sign out</button></form>
+  </nav>
+</header>
+<main>
+  <p th:if="${notice}" class="notice" th:text="${notice}"></p>
+  <section class="card" th:if="${run == null}">
+    <p>That remediation does not exist.</p>
+  </section>
+  <section class="card" th:if="${run != null}">
+    <h2 th:text="${run.coordinate}"></h2>
+    <p th:text="${run.previousVersion + ' → ' + run.candidateVersion}"></p>
+    <p>State <strong th:text="${run.state}"></strong></p>
+    <p th:text="${run.reasonMessage}"></p>
+    <p>Advisory <span th:text="${run.advisoryId}"></span></p>
+    <p>Base <span th:text="${run.baseSha}"></span></p>
+    <p>Patch hash <span th:text="${run.patchHash}"></span></p>
+    <p>Branch <span th:text="${run.branchName}"></span></p>
+    <p th:if="${run.prUrl != null}">Pull request <a th:href="${run.prUrl}" th:text="${run.prUrl}"></a></p>
+    <form th:if="${run.state != 'PR_OPENED' && run.state != 'FAILED' && run.state != 'BLOCKED' && run.state != 'CANCELLED' && run.state != 'INTERRUPTED' && !run.publishAttempted}"
+          method="post" th:action="@{/runs/{id}/cancel(id=${run.id})}">
+      <input type="hidden" name="idempotencyKey" th:value="${idempotencyKey}"/>
+      <button type="submit">Cancel</button>
+    </form>
+    <h3>Why this recommendation</h3>
+    <pre th:text="${recommendation}"></pre>
+    <h3>Verification evidence</h3>
+    <pre th:text="${verification}"></pre>
+    <h3>Patch</h3>
+    <pre th:text="${diff}"></pre>
+    <h3>Audit</h3>
+    <ul>
+      <li th:each="event : ${audit}" th:text="${event.createdAt + ' ' + event.eventType + ' ' + event.outcome}"></li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>

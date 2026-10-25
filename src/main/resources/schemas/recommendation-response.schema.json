@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["findingId", "coordinate", "candidateVersion", "summary", "compatibilityNotes", "evidenceIds"],
+  "properties": {
+    "findingId": {"type": "string", "minLength": 1, "maxLength": 80},
+    "coordinate": {"type": "string", "minLength": 1, "maxLength": 300},
+    "candidateVersion": {"type": "string", "minLength": 1, "maxLength": 80},
+    "summary": {"type": "string", "minLength": 1, "maxLength": 500},
+    "compatibilityNotes": {
+      "type": "array",
+      "maxItems": 5,
+      "items": {"type": "string", "maxLength": 300}
+    },
+    "evidenceIds": {
+      "type": "array",
+      "maxItems": 20,
+      "items": {"type": "string", "maxLength": 100}
+    }
+  }
+}

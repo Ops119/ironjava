@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <title>Sign in — IronJava</title>
+  <link rel="stylesheet" href="/css/app.css"/>
+</head>
+<body>
+<main class="card login">
+  <h1>IronJava</h1>
+  <p class="muted">Verified dependency fixes. Sign in to the pilot dashboard.</p>
+  <p th:if="${param.error}" class="notice">The username or password was not accepted.</p>
+  <p th:if="${param.logout}" class="notice">Signed out.</p>
+  <form method="post" th:action="@{/login}">
+    <label>Username <input type="text" name="username" autocomplete="username" required/></label>
+    <label>Password <input type="password" name="password" autocomplete="current-password" required/></label>
+    <button type="submit">Sign in</button>
+  </form>
+</main>
+</body>
+</html>

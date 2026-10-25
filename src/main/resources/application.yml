@@ -1,0 +1,95 @@
+server:
+  port: ${PORT:8080}
+  error:
+    include-message: never
+    include-stacktrace: never
+
+spring:
+  application:
+    name: ironjava
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:ironjava}
+    username: ${POSTGRES_USER:ironjava}
+    password: ${POSTGRES_PASSWORD:ironjava}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate.jdbc.time_zone: UTC
+  flyway:
+    enabled: true
+  thymeleaf:
+    cache: true
+  task:
+    scheduling:
+      pool:
+        size: 4
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+ironjava:
+  role: ${IRONJAVA_ROLE:ALL}
+  worker-enabled: ${IRONJAVA_WORKER_ENABLED:true}
+  control-loop-enabled: ${IRONJAVA_CONTROL_LOOP_ENABLED:true}
+  loop-delay-ms: ${IRONJAVA_LOOP_DELAY_MS:2000}
+  auth:
+    username: ${IRONJAVA_AUTH_USERNAME:ironjava}
+    password: ${IRONJAVA_AUTH_PASSWORD:}
+    api-token: ${IRONJAVA_API_TOKEN:}
+  github:
+    app-id: ${IRONJAVA_GITHUB_APP_ID:}
+    private-key-path: ${IRONJAVA_GITHUB_PRIVATE_KEY_PATH:}
+    api-base: ${IRONJAVA_GITHUB_API_BASE:https://api.github.com}
+  model:
+    mode: ${IRONJAVA_MODEL_MODE:disabled}
+    endpoint: ${IRONJAVA_MODEL_ENDPOINT:}
+    name: ${IRONJAVA_MODEL_NAME:}
+    api-key-path: ${IRONJAVA_MODEL_API_KEY_PATH:}
+    input-price-per-million: ${IRONJAVA_MODEL_INPUT_PRICE:0}
+    output-price-per-million: ${IRONJAVA_MODEL_OUTPUT_PRICE:0}
+  runner:
+    mode: ${IRONJAVA_RUNNER_MODE:process}
+    image: ${IRONJAVA_RUNNER_IMAGE:ironjava-runner:1.0.0}
+    maven-binary: ${IRONJAVA_MAVEN_BINARY:mvn}
+    osv-scanner-binary: ${IRONJAVA_OSV_SCANNER:osv-scanner}
+    workspace-root: ${IRONJAVA_WORKSPACE_ROOT:/tmp/ironjava-workspaces}
+    network: ${IRONJAVA_BUILD_NETWORK:ironjava_build}
+    docker-binary: ${IRONJAVA_DOCKER_BINARY:docker}
+  limits:
+    stage-timeout-seconds: ${IRONJAVA_STAGE_TIMEOUT_SECONDS:900}
+    lease-seconds: ${IRONJAVA_LEASE_SECONDS:60}
+    max-log-bytes: 200000
+    workspace-retention-hours: 24
+    model-max-calls: 2
+    model-max-input-chars: 8000
+    model-max-output-tokens: 800
+  repositories:
+    - id: pilot-fixture
+      display-name: IronJava acceptance fixture
+      source: ${IRONJAVA_FIXTURE_SOURCE:local}
+      local-path: ${IRONJAVA_FIXTURE_LOCAL_PATH:}
+      github-owner: Ops119
+      github-repo: ironjava-fixture
+      allowed-branch: ${IRONJAVA_FIXTURE_BRANCH:cursor/ironjava-acceptance-fixture-68a8}
+      installation-id: ${IRONJAVA_GITHUB_INSTALLATION_ID:0}
+      build-profile: verify
+      excluded-dependencies: []
+    - id: pilot-fixture-test-failure
+      display-name: IronJava fixture test-failure scenario
+      source: ${IRONJAVA_FIXTURE_SOURCE:local}
+      local-path: ${IRONJAVA_FIXTURE_TEST_FAILURE_PATH:}
+      github-owner: Ops119
+      github-repo: ironjava-fixture
+      allowed-branch: scenario/test-failure
+      installation-id: ${IRONJAVA_GITHUB_INSTALLATION_ID:0}
+      build-profile: verify
+      excluded-dependencies: []

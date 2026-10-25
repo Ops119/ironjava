@@ -1,0 +1,14 @@
+ironjava:
+  role: WORKER
+  worker-enabled: true
+  control-loop-enabled: false
+  github:
+    app-id: ""
+    private-key-path: ""
+    private-key: ""
+  model:
+    mode: disabled
+    endpoint: ""
+    name: ""
+    api-key-path: ""
+    api-key: ""

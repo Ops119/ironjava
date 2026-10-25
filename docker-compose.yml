@@ -1,0 +1,98 @@
+services:
+  postgres:
+    image: postgres:17.6@sha256:00bc86618629af00d2937fdc5a5d63db3ff8450acf52f0636ec813c7f4902929
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-ironjava}
+      POSTGRES_USER: ${POSTGRES_USER:-ironjava}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ironjava}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ironjava} -d ${POSTGRES_DB:-ironjava}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  control:
+    build:
+      context: .
+      target: app
+    environment:
+      IRONJAVA_ROLE: CONTROL
+      IRONJAVA_WORKER_ENABLED: "false"
+      IRONJAVA_CONTROL_LOOP_ENABLED: "true"
+      IRONJAVA_AUTH_USERNAME: ${IRONJAVA_AUTH_USERNAME:-ironjava}
+      IRONJAVA_AUTH_PASSWORD: ${IRONJAVA_AUTH_PASSWORD:-change-me}
+      IRONJAVA_API_TOKEN: ${IRONJAVA_API_TOKEN:-}
+      IRONJAVA_GITHUB_APP_ID: ${IRONJAVA_GITHUB_APP_ID:-}
+      IRONJAVA_GITHUB_PRIVATE_KEY_PATH: ${IRONJAVA_GITHUB_PRIVATE_KEY_PATH:-}
+      IRONJAVA_GITHUB_INSTALLATION_ID: ${IRONJAVA_GITHUB_INSTALLATION_ID:-0}
+      IRONJAVA_MODEL_MODE: ${IRONJAVA_MODEL_MODE:-disabled}
+      IRONJAVA_MODEL_ENDPOINT: ${IRONJAVA_MODEL_ENDPOINT:-}
+      IRONJAVA_MODEL_NAME: ${IRONJAVA_MODEL_NAME:-}
+      IRONJAVA_MODEL_API_KEY_PATH: ${IRONJAVA_MODEL_API_KEY_PATH:-}
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-ironjava}
+      POSTGRES_USER: ${POSTGRES_USER:-ironjava}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ironjava}
+      IRONJAVA_WORKSPACE_ROOT: /var/ironjava/workspaces
+      IRONJAVA_RUNNER_MODE: process
+      IRONJAVA_FIXTURE_SOURCE: ${IRONJAVA_FIXTURE_SOURCE:-local}
+      IRONJAVA_FIXTURE_LOCAL_PATH: ${IRONJAVA_FIXTURE_LOCAL_PATH:-}
+      IRONJAVA_FIXTURE_TEST_FAILURE_PATH: ${IRONJAVA_FIXTURE_TEST_FAILURE_PATH:-}
+      IRONJAVA_FIXTURE_BRANCH: ${IRONJAVA_FIXTURE_BRANCH:-cursor/ironjava-acceptance-fixture-68a8}
+    volumes:
+      - workspaces:/var/ironjava/workspaces
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: .
+      target: worker
+    environment:
+      IRONJAVA_ROLE: WORKER
+      IRONJAVA_WORKER_ENABLED: "true"
+      IRONJAVA_CONTROL_LOOP_ENABLED: "false"
+      IRONJAVA_AUTH_USERNAME: ${IRONJAVA_AUTH_USERNAME:-ironjava}
+      IRONJAVA_AUTH_PASSWORD: ${IRONJAVA_AUTH_PASSWORD:-change-me}
+      IRONJAVA_RUNNER_MODE: container
+      IRONJAVA_RUNNER_IMAGE: ironjava-runner:1.0.0
+      IRONJAVA_BUILD_NETWORK: ironjava_build
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-ironjava}
+      POSTGRES_USER: ${POSTGRES_USER:-ironjava}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ironjava}
+      IRONJAVA_WORKSPACE_ROOT: /var/ironjava/workspaces
+      IRONJAVA_FIXTURE_SOURCE: ${IRONJAVA_FIXTURE_SOURCE:-local}
+      IRONJAVA_FIXTURE_LOCAL_PATH: ${IRONJAVA_FIXTURE_LOCAL_PATH:-}
+      IRONJAVA_FIXTURE_TEST_FAILURE_PATH: ${IRONJAVA_FIXTURE_TEST_FAILURE_PATH:-}
+      IRONJAVA_FIXTURE_BRANCH: ${IRONJAVA_FIXTURE_BRANCH:-cursor/ironjava-acceptance-fixture-68a8}
+    volumes:
+      - workspaces:/var/ironjava/workspaces
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  runner:
+    profiles: ["tools"]
+    image: ironjava-runner:1.0.0
+    build:
+      context: .
+      target: runner
+    entrypoint: ["sleep", "infinity"]
+    networks:
+      - build
+
+networks:
+  default: {}
+  build:
+    name: ironjava_build
+
+volumes:
+  pgdata: {}
+  workspaces: {}
